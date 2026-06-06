@@ -17,7 +17,6 @@
     { "src": "/static/icon-512-maskable.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
   ],
   "shortcuts": [
-    { "name": "New Chat", "short_name": "New Chat", "url": "/" },
-    { "name": "Calendar", "short_name": "Calendar", "url": "/calendar" }
+    { "name": "New Chat", "short_name": "New Chat", "url": "/" }
   ]
 }
