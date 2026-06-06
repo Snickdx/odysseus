@@ -32,6 +32,21 @@ class TimestampMixin:
 # Get database URL from environment, default to SQLite
 DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./data/app.db")
 
+
+def _ensure_sqlite_parent_dir(database_url: str) -> None:
+    """Create parent directory for file-backed SQLite URLs."""
+    if not database_url.startswith("sqlite:///"):
+        return
+    sqlite_path = database_url.replace("sqlite:///", "", 1)
+    if not sqlite_path or sqlite_path == ":memory:" or sqlite_path.startswith("file:"):
+        return
+    parent = os.path.dirname(os.path.abspath(sqlite_path))
+    if parent:
+        os.makedirs(parent, exist_ok=True)
+
+
+_ensure_sqlite_parent_dir(DATABASE_URL)
+
 # Create engine
 engine = create_engine(
     DATABASE_URL,
