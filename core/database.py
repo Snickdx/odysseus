@@ -1,6 +1,7 @@
 import os
 import logging
 import sqlite3
+from urllib.parse import urlparse, unquote
 from datetime import datetime, timezone
 from sqlalchemy import event, create_engine, Column, String, Text, Boolean, DateTime, Integer, ForeignKey, JSON, Index, func, text
 from sqlalchemy.engine import Engine
@@ -38,9 +39,19 @@ def _ensure_sqlite_parent_dir(database_url: str) -> None:
     if not database_url.startswith("sqlite:///"):
         return
     sqlite_path = database_url.replace("sqlite:///", "", 1)
-    if not sqlite_path or sqlite_path == ":memory:" or sqlite_path.startswith("file:"):
+    if not sqlite_path:
         return
-    parent = os.path.dirname(os.path.abspath(sqlite_path))
+    if sqlite_path.startswith("file:"):
+        parsed_uri = urlparse(sqlite_path)
+        candidate_path = unquote(parsed_uri.path) or unquote(sqlite_path[len("file:"):])
+        if candidate_path in (":memory:", "/:memory:"):
+            return
+    else:
+        candidate_path = sqlite_path
+        if candidate_path == ":memory:":
+            return
+
+    parent = os.path.dirname(os.path.abspath(candidate_path))
     if parent:
         os.makedirs(parent, exist_ok=True)
 
